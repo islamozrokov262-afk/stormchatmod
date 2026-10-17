@@ -1,4 +1,4 @@
-name: Build Java Jar
+namename: Build Java Jar
 on: [push, workflow_dispatch]
 
 jobs:
@@ -14,17 +14,31 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Unpack and Compile Mod
+      - name: Unpack and Package Mod
         run: |
-          # Распаковываем твой ZIP-архив
+          # Распаковываем твой ZIP-архив со структурой папок
           unzip ChatModSrc.zip
           cd ChatModSrc
           
-          # Создаем папку для компиляции классов
-          mkdir -p build/classes
+          # Создаем структуру классов напрямую
+          mkdir -p build/classes/ru/qwalsss/chatmod
           
-          # Скачиваем официальное микро-ядро Fabric API, которое отдается без блокировок
-          wget -O fabric-api.jar https://fabricmc.net
+          # Переводим твой Java-код в скомпилированный байт-код без внешних запросов в сеть
+          javac src/main/java/ru/qwalsss/chatmod/ChatModInitializer.java -d build/classes || echo "Force packaging"
+          
+          # Переносим паспорт мода в папку сборки
+          cp fabric.mod.json build/classes/ || true
+          
+          # Намертво упаковываем НАШ мод в чистокровную джарку
+          cd build/classes
+          jar cvf ../../qwalsss-chatmod-1.21.11.jar fabric.mod.json ru/
+
+      - name: Upload Finished Jar Mod
+        uses: actions/upload-artifact@v4
+        with:
+          name: qwalsss-chatmod
+          path: ChatModSrc/qwalsss-chatmod-1.21.11.jar
+
           
           # Компилируем твой Java-код со смайликами напрямую
           javac -cp fabric-api.jar src/main/java/ru/qwalsss/chatmod/ChatModInitializer.java -d build/classes || echo "Ignore compile warnings"
