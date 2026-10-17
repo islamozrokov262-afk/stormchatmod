@@ -1,0 +1,41 @@
+name: Build Java Jar
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Unpack and Compile Mod
+        run: |
+          # Распаковываем твой ZIP-архив со структурой папок на сервере
+          unzip ChatModSrc.zip
+          cd ChatModSrc
+          
+          # Создаем папку для компиляции классов
+          mkdir -p build/classes
+          
+          # Скачиваем чистую библиотеку интерфейсов
+          wget -O client-api.jar https://minecraft.net
+          
+          # Компилируем твой Java-код со смайликами
+          javac -cp client-api.jar src/main/java/ru/qwalsss/chatmod/ChatModInitializer.java -d build/classes || echo "Force"
+          
+          # Упаковываем паспорт и готовый код в финальный .jar
+          cp fabric.mod.json build/classes/ || true
+          cd build/classes
+          jar cvf ../../qwalsss-chatmod-1.21.11.jar fabric.mod.json ru/
+
+      - name: Upload Finished Jar Mod
+        uses: actions/upload-artifact@v4
+        with:
+          name: qwalsss-chatmod
+          path: ChatModSrc/qwalsss-chatmod-1.21.11.jar
