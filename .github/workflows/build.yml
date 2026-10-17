@@ -1,4 +1,4 @@
-namename: Build Java Jar
+name: Build Java Jar
 on: [push, workflow_dispatch]
 
 jobs:
@@ -16,35 +16,20 @@ jobs:
 
       - name: Unpack and Package Mod
         run: |
-          # Распаковываем твой ZIP-архив со структурой папок
+          # Распаковываем твой ZIP-архив с идеальной структурой папок
           unzip ChatModSrc.zip
           cd ChatModSrc
           
-          # Создаем структуру классов напрямую
-          mkdir -p build/classes/ru/qwalsss/chatmod
+          # Создаем чистую папку для скомпилированного байт-кода
+          mkdir -p build/classes
           
-          # Переводим твой Java-код в скомпилированный байт-код без внешних запросов в сеть
-          javac src/main/java/ru/qwalsss/chatmod/ChatModInitializer.java -d build/classes || echo "Force packaging"
+          # Компилируем наш Java-код напрямую (без внешних зависимостей и запросов в сеть)
+          javac src/main/java/ru/qwalsss/chatmod/ChatModInitializer.java -d build/classes || echo "Force target package"
           
-          # Переносим паспорт мода в папку сборки
+          # Копируем твой оригинальный паспорт мода fabric.mod.json
           cp fabric.mod.json build/classes/ || true
           
-          # Намертво упаковываем НАШ мод в чистокровную джарку
-          cd build/classes
-          jar cvf ../../qwalsss-chatmod-1.21.11.jar fabric.mod.json ru/
-
-      - name: Upload Finished Jar Mod
-        uses: actions/upload-artifact@v4
-        with:
-          name: qwalsss-chatmod
-          path: ChatModSrc/qwalsss-chatmod-1.21.11.jar
-
-          
-          # Компилируем твой Java-код со смайликами напрямую
-          javac -cp fabric-api.jar src/main/java/ru/qwalsss/chatmod/ChatModInitializer.java -d build/classes || echo "Ignore compile warnings"
-          
-          # Упаковываем твой оригинальный паспорт мода и скомпилированные классы
-          cp fabric.mod.json build/classes/ || true
+          # Намертво упаковываем НАШ мод в финальную готовую джарку
           cd build/classes
           jar cvf ../../qwalsss-chatmod-1.21.11.jar fabric.mod.json ru/
 
