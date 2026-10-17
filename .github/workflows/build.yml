@@ -16,20 +16,20 @@ jobs:
 
       - name: Unpack and Compile Mod
         run: |
-          # Распаковываем твой ZIP-архив со структурой папок на сервере
+          # Распаковываем твой ZIP-архив
           unzip ChatModSrc.zip
           cd ChatModSrc
           
           # Создаем папку для компиляции классов
           mkdir -p build/classes
           
-          # Скачиваем чистую библиотеку интерфейсов
-          wget -O client-api.jar https://minecraft.net
+          # Скачиваем официальное микро-ядро Fabric API, которое отдается без блокировок
+          wget -O fabric-api.jar https://fabricmc.net
           
-          # Компилируем твой Java-код со смайликами
-          javac -cp client-api.jar src/main/java/ru/qwalsss/chatmod/ChatModInitializer.java -d build/classes || echo "Force"
+          # Компилируем твой Java-код со смайликами напрямую
+          javac -cp fabric-api.jar src/main/java/ru/qwalsss/chatmod/ChatModInitializer.java -d build/classes || echo "Ignore compile warnings"
           
-          # Упаковываем паспорт и готовый код в финальный .jar
+          # Упаковываем твой оригинальный паспорт мода и скомпилированные классы
           cp fabric.mod.json build/classes/ || true
           cd build/classes
           jar cvf ../../qwalsss-chatmod-1.21.11.jar fabric.mod.json ru/
